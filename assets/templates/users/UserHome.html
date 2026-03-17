@@ -1,0 +1,55 @@
+{% extends 'users/userbase.html' %}
+
+{% block title %}
+    User Home
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .jumb {
+        padding-top: 300px; /* Reduced padding for better balance */
+        margin: 20px; /* Slightly increased margin for spacing */
+        display: flex;
+        justify-content: center; /* Center the jumbotron */
+        min-height: calc(100vh - 150px); /* Ensure full viewport height minus padding */
+    }
+
+    .jumbotron {
+        background: rgba(0, 0, 0, 0.6); /* Slightly darker background for contrast */
+        color: white; /* Ensure all text inside is white */
+        padding: 50px 30px; /* Adjusted padding for better spacing */
+        border-radius: 15px; /* Smoother border radius */
+        box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.3); /* Enhanced shadow for depth */
+        text-align: center;
+        font-family: 'Poppins', sans-serif;
+        max-width: 600px; /* Limit width for better readability */
+        width: 100%; /* Responsive width */
+    }
+
+    .jumbotron h1 {
+        color: white; /* Explicitly set to white */
+        font-size: 40px; /* Slightly larger for emphasis */
+        font-weight: 700; /* Bolder font weight */
+        margin-bottom: 25px; /* Increased spacing below */
+        letter-spacing: 1px; /* Subtle letter spacing for elegance */
+    }
+
+    .jumbotron p {
+        color: white; /* Explicitly set to white */
+        font-size: 20px; /* Slightly larger for readability */
+        line-height: 1.8; /* Improved line spacing */
+        margin: 10px 0; /* Consistent spacing between paragraphs */
+    }
+</style>
+
+<div class="jumb">
+    <div class="jumbotron">
+        <h1>User Home</h1>
+        <p>Parcel Damage Classification</p>
+        <p>Damaged</p>
+        <p>Intact</p>
+    </div>
+</div>
+
+{% endblock %}

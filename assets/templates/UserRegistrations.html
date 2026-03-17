@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<br>
+<br>
+<br>
+<style>
+    .jumbotron {
+        font-family: "Book Antiqua";
+        text-align: center;
+        background: rgba(0, 0, 0, 0); /* Semi-transparent black background */
+    }
+
+    .form-container {
+        max-width: 600px; /* Unchanged width */
+        margin: 0 auto;
+        padding: 30px; /* Increased padding for neatness */
+        border-radius: 10px; /* Subtle rounded corners */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Soft shadow for depth */
+        background:rgba(0, 0, 0, 0.7); /* Slightly more opaque white for contrast */
+    }
+
+        /* Form title */
+    h2 {
+        color: #ffffff; /* White text for "User Sign up" */
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* Subtle shadow for readability */
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+        text-align: left;
+    }
+
+    .form-group label {
+        font-weight: bold;
+        color: rgba(255, 255, 255, 0.98); /* Black labels */
+        font-size: 1rem; /* Consistent size */
+    }
+
+    .btn-group {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+
+    /* Buttons */
+    .btn-primary {
+        background-color: #007bff; /* Formal blue */
+        border-color: #007bff;
+        color: #000000; /* Black text */
+        padding: 10px 20px;
+        font-weight: 500;
+    }
+    .btn-primary:hover {
+        background-color: #0056b3; /* Darker blue on hover */
+        border-color: #0056b3;
+    }
+    .btn-outline-dark {
+        color: #000000; /* Black text */
+        border-color: #6c757d; /* Subtle gray border */
+        padding: 10px 20px;
+        font-weight: 500;
+    }
+    .btn-outline-dark:hover {
+        background-color: #6c757d; /* Gray background on hover */
+        color: #000000;
+    }
+
+    /* Input fields */
+    .form-control {
+        background: rgba(255, 255, 255, 0.95); /* Light grayish-white for formal look */
+        color: #000000; /* Black text for input content */
+        border: 1px solid #ced4da; /* Subtle border */
+        border-radius: 5px; /* Rounded edges */
+        font-size: 1rem;
+    }
+
+</style>
+
+<div class="jumbotron">
+    <div class="container">
+        <div class="card card-body form-container">
+            <form action="{% url 'UserRegisterActions' %}" method="POST">
+                {% csrf_token %}
+
+                <h2 align="center"><strong>User Sign up</strong></h2>
+
+                <div class="form-group">
+                    <label for="id_name">User Name</label>
+                    {{ form.name }}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_loginid">Login Id</label>
+                    {{ form.loginid }}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_email">Email</label>
+                    {{ form.email }}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_mobile">Mobile</label>
+                    {{ form.mobile }}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_password">Password</label>
+                    {{ form.password }}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_locality">Locality</label>
+                    {{ form.locality }}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_city">City</label>
+                    {{ form.city }}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_state">State</label>
+                    {{ form.state }}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_status">Status</label>
+                    {{ form.status }}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_address">Address</label>
+                    {{ form.address }}
+                </div>
+
+                <div>
+                    <center>
+                                <input type="submit" class="btn btn-primary">
+                                <input type="reset" class="btn btn-primary">
+                    </center>
+                </div>
+
+                {% if messages %}
+                    {% for message in messages %}
+                        <p align="center" class="text-primary">{{ message }}</p>
+                    {% endfor %}
+                {% endif %}
+
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+

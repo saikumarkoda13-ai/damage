@@ -1,0 +1,157 @@
+{% extends 'admins/adminbase.html' %}
+{% block title %}User List{% endblock %}
+{% block user_list %}active{% endblock %}
+
+{% block content %}
+
+<br>
+<br>
+<br>
+<br>
+    <style>
+        /* General Styling */
+        body {
+            font-family: "Poppins", sans-serif;
+            background-color: #f4f6f9;
+        }
+
+        /* Styling for the main container */
+        .jumbotron {
+            background: white;
+            margin-top: 20px;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    
+        }
+
+        /* Card Styling */
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+            background: #fff;
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            background: linear-gradient(to right, #007bff, #00c6ff);
+            color: white;
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            padding: 15px;
+            border-radius: 10px 10px 0 0;
+        }
+
+        /* Table Styling */
+        .table {
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .table th {
+            background: #007bff;
+            color: white;
+            text-align: center;
+            padding: 12px;
+            font-size: 1rem;
+        }
+
+        .table td {
+            text-align: center;
+            padding: 10px;
+            font-size: 1rem;
+        }
+
+        .btn-link {
+            font-weight: bold;
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        .btn-link:hover {
+            color: #0056b3;
+            text-decoration: underline;
+        }
+
+        /* Status Badge Styling */
+        .status-waiting {
+            background: #ffc107;
+            color: black;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .status-active {
+            background: #28a745;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+    </style>
+
+    <br>
+    <br>
+    <br>
+    <br>
+        <br>
+
+
+    <div>
+        <div class="jumbotron">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">User List</div>
+                        <div class="card-body">
+                            <table class="table table-striped">
+                                <thead>
+                                <tr>
+                                    <th scope="col">Sno</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Login Id</th>
+                                    <th scope="col">Mobile</th>
+                                    <th scope="col">Email</th>
+                                    <th scope="col">Locality</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Activate</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for user in data %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ user.name }}</td>
+                                        <td>{{ user.loginid }}</td>
+                                        <td>{{ user.mobile }}</td>
+                                        <td>{{ user.email }}</td>
+                                        <td>{{ user.locality }}</td>
+                                        <td>
+                                            {% if user.status == 'waiting' %}
+                                                <span class="status-waiting">Waiting</span>
+                                            {% else %}
+                                                <span class="status-active">Activated</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if user.status == 'waiting' %}
+                                                <a class="btn-link" href="/AdminActivaUsers/?uid={{ user.id }}">Activate</a>
+                                            {% else %}
+                                                <span class="text-success">✔ Activated</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

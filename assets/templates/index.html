@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load static %}
+    Parcel Damage Classification
+{% block home_page %}
+    active
+{% endblock %}
+{% block content %}
+    <!-- Hero Section -->
+    <section class="page-section py-5" style="background: #ffffff; display: flex; justify-content: center; align-items: center; flex-direction: column; min-height: 80vh;">
+        <div class="container text-center">
+            <h1 style="color: #333333; font-size: 1.8rem; font-weight: 500; margin-bottom: 20px;">
+                Parcel Damage Classification
+            </h1>
+            <div style="max-width: 700px; margin: 0 auto;">
+                <img src="{% static 'img/box5.jpg' %}" alt="Example of a damaged parcel" style="max-width: 100%; height: auto; display: block;">
+                <p style="color: #555555; font-size: 0.9rem; margin-top: 10px;">Example of a damaged parcel that our platform can analyze.</p>
+            </div>
+            <p style="color: #555555; font-size: 1rem; line-height: 1.5; margin-top: 20px; max-width: 600px;">
+                Our Parcel Damage Classification platform helps logistics companies, retailers, and insurers quickly assess and categorize parcel damage. Using advanced technology, we streamline the process of identifying damage severity, reducing manual effort and improving efficiency.
+            </p>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="page-section py-5" style="background: #f8f8f8;">
+        <div class="container">
+            <h2 style="color: #333333; font-size: 1.5rem; font-weight: 500; text-align: center; margin-bottom: 30px;">
+                Why Choose Our Platform?
+            </h2>
+            <div style="display: flex; flex-wrap: wrap; justify-content: space-between;">
+                <div style="flex: 1; min-width: 200px; margin: 10px; padding: 15px;">
+                    <h3 style="color: #333333; font-size: 1.2rem; font-weight: 500;">Accurate Analysis</h3>
+                    <p style="color: #555555; font-size: 0.9rem; line-height: 1.5;">
+                        Leverage cutting-edge algorithms to precisely classify parcel damage, ensuring reliable results for claims and reporting.
+                    </p>
+                </div>
+                <div style="flex: 1; min-width: 200px; margin: 10px; padding: 15px;">
+                    <h3 style="color: #333333; font-size: 1.2rem; font-weight: 500;">User-Friendly Interface</h3>
+                    <p style="color: #555555; font-size: 0.9rem; line-height: 1.5;">
+                        Designed for ease of use, our platform allows users to upload images and receive instant damage assessments with minimal training.
+                    </p>
+                </div>
+                <div style="flex: 1; min-width: 200px; margin: 10px; padding: 15px;">
+                    <h3 style="color: #333333; font-size: 1.2rem; font-weight: 500;">Fast Processing</h3>
+                    <p style="color: #555555; font-size: 0.9rem; line-height: 1.5;">
+                        Save time with rapid analysis, enabling quick decision-making for logistics and insurance processes.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call-to-Action Section -->
+    <section class="page-section py-5" style="background: #ffffff;">
+        <div class="container text-center">
+            <h2 style="color: #333333; font-size: 1.5rem; font-weight: 500; margin-bottom: 20px;">
+                Get Started Today
+            </h2>
+            <p style="color: #555555; font-size: 1rem; line-height: 1.5; max-width: 600px; margin: 0 auto 20px;">
+                Join our platform to streamline your parcel damage assessment process. Register now or log in to explore our tools.
+            </p>
+            <a class="btn btn-primary" href="{% url 'UserRegister' %}" style="background: #333333; border: none; padding: 8px 20px; font-size: 0.9rem; color: #ffffff;">Register Now</a>
+        </div>
+    </section>
+{% endblock %}

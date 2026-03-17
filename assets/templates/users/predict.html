@@ -1,0 +1,25 @@
+{% extends 'users/userbase.html' %}
+
+{% block content %}
+<div class="container d-flex flex-column justify-content-center align-items-center min-vh-100">
+    <div class="text-center">
+        <h1 class="mb-4">Upload a Parcel Image</h1>
+        <form method="post" enctype="multipart/form-data" class="d-flex flex-column align-items-center">
+            {% csrf_token %}
+            <div class="mb-3">
+                <input type="file" name="image" required class="form-control">
+            </div>
+            <button type="submit" class="btn btn-primary">Predict</button>
+        </form>
+
+        {% if prediction %}
+            <h2 class="mt-4">Prediction: {{ prediction }}</h2>
+            
+            {% if image_url %}
+                <img src="{{ image_url }}" alt="Uploaded Image" class="mt-3" style="max-width: 300px; height: auto;">
+            {% endif %}
+            <p>Confidence: <strong>{{ confidence }}</strong></p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
