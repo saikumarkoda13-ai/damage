@@ -7,15 +7,16 @@ from django.core.files.storage import FileSystemStorage
 import os
 
 
-import pandas as pd
-import matplotlib.pyplot as plt
+# Use tflite_runtime if available, otherwise fallback to tensorflow
+try:
+    import tflite_runtime.interpreter as tflite
+except ImportError:
+    import tensorflow.lite as tflite
+
+from PIL import Image
 import numpy as np
-import seaborn as sns
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.model_selection import train_test_split
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.metrics import accuracy_score, classification_report
-from django.shortcuts import render
+import os
+from django.shortcuts import render, HttpResponse
 from django.conf import settings
 
 
