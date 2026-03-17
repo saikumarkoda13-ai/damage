@@ -22,19 +22,9 @@ class UserRegistrationForm(forms.ModelForm):
         widget=forms.TextInput(attrs={'pattern': r'[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$', 'class': 'form-control'}),
         required=True, max_length=100)
 
-    locality = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}), required=True, max_length=100)
-
-    address = forms.CharField(widget=forms.Textarea(attrs={'rows': 3, 'cols': 20, 'class': 'form-control'}),
-                              required=True, max_length=250)
-
-    city = forms.CharField(widget=forms.TextInput(
-        attrs={'autocomplete': 'off', 'pattern': '[A-Za-z ]+', 'title': 'Enter Characters Only ',
-               'class': 'form-control'}), required=True,
-        max_length=100)
-
     state = forms.CharField(widget=forms.TextInput(
         attrs={'autocomplete': 'off', 'pattern': '[A-Za-z ]+', 'title': 'Enter Characters Only ',
-               'class': 'form-control'}), required=True,
+               'class': 'form-control'}), required=False,
         max_length=100)
 
     status = forms.CharField(widget=forms.HiddenInput(), initial='waiting', max_length=100)

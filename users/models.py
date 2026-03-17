@@ -8,10 +8,10 @@ class UserRegistrationModel(models.Model):
     password = models.CharField(max_length=100)
     mobile = models.CharField(unique=True, max_length=100)
     email = models.CharField(unique=True, max_length=100)
-    locality = models.CharField(max_length=100)
-    address = models.CharField(max_length=1000)
-    city = models.CharField(max_length=100)
-    state = models.CharField(max_length=100)
+    locality = models.CharField(max_length=100, null=True, blank=True)
+    address = models.CharField(max_length=1000, null=True, blank=True)
+    city = models.CharField(max_length=100, null=True, blank=True)
+    state = models.CharField(max_length=100, null=True, blank=True)
     status = models.CharField(max_length=100)
 
     def __str__(self):
