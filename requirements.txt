@@ -6,3 +6,7 @@ numpy
 gunicorn
 pillow
 whitenoise
+pandas
+matplotlib
+seaborn
+scikit-learn
