@@ -101,28 +101,37 @@ def api_login(request):
 @require_http_methods(["POST"])
 def api_predict(request):
     try:
+        print(f"DEBUG: api_predict received request. Method: {request.method}")
+        
         if not request.FILES.get('image'):
+            print("ERROR: No image file found in request.FILES")
             return json_response({'success': False, 'message': 'No image file provided.'}, 400)
 
         uploaded_file = request.FILES['image']
+        print(f"DEBUG: Uploaded file name: {uploaded_file.name}, Size: {uploaded_file.size} bytes")
+        
         fs = FileSystemStorage()
         file_path = fs.save(uploaded_file.name, uploaded_file)
         full_path = fs.path(file_path)
+        print(f"DEBUG: File saved at: {full_path}")
 
         # Preprocess with PIL
-        img = Image.open(full_path).resize((256, 256))
-        img_array = np.array(img).astype(np.float32) / 255.0
-        
-        # Ensure 3 channels
-        if img_array.shape[-1] == 4:
-            img_array = img_array[:, :, :3]
+        try:
+            img = Image.open(full_path).convert('RGB').resize((256, 256))
+            img_array = np.array(img).astype(np.float32) / 255.0
+            print(f"DEBUG: Image shape after processing: {img_array.shape}")
+        except Exception as e:
+            print(f"ERROR during image preprocessing: {str(e)}")
+            return json_response({'success': False, 'message': f'Image preprocessing error: {str(e)}'}, 400)
             
         img_array = np.expand_dims(img_array, axis=0)
 
         # TFLite Inference
+        print("DEBUG: Starting TFLite inference...")
         interpreter.set_tensor(input_details[0]['index'], img_array)
         interpreter.invoke()
         prediction = interpreter.get_tensor(output_details[0]['index'])[0]
+        print(f"DEBUG: Prediction raw result: {prediction}")
 
         if len(prediction) == 1:  # sigmoid
             prob = float(prediction[0])
@@ -141,6 +150,8 @@ def api_predict(request):
             if confidence < 0.60:
                 predicted_class = 'Non-Parcel Image'
 
+        print(f"DEBUG: Final prediction: {predicted_class} with confidence {confidence * 100:.2f}%")
+        
         return json_response({
             'success': True,
             'prediction': predicted_class,
@@ -148,6 +159,9 @@ def api_predict(request):
             'image_url': fs.url(file_path),
         })
     except Exception as e:
+        print(f"CRITICAL ERROR in api_predict: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return json_response({'success': False, 'message': str(e)}, 500)
 
 
