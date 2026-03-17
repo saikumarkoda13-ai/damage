@@ -2,10 +2,14 @@ services:
   - type: web
     name: parcel-damage-backend
     env: python
-    buildCommand: pip install -r requirements.txt && python manage.py migrate && python manage.py collectstatic --noinput
+    buildCommand: pip install -r requirements.txt && python manage.py migrate --noinput && python manage.py collectstatic --noinput
     startCommand: gunicorn parcel_damage_classification.wsgi:application --workers 1 --threads 8 --timeout 120
     envVars:
       - key: PYTHON_VERSION
         value: 3.10.0
       - key: DJANGO_SETTINGS_MODULE
         value: parcel_damage_classification.settings
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        generateValue: true
