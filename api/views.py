@@ -190,9 +190,22 @@ def api_activate_user(request):
         if not uid:
             return json_response({'success': False, 'message': 'User ID is required.'}, 400)
 
-        updated = UserRegistrationModel.objects.filter(id=uid).update(status='activated')
+        # Cast uid to int for reliability
+        try:
+            uid_int = int(uid)
+        except (ValueError, TypeError):
+            return json_response({'success': False, 'message': 'Invalid User ID format.'}, 400)
+
+        print(f"DEBUG: Attempting to activate user ID: {uid_int}")
+        
+        updated = UserRegistrationModel.objects.filter(id=uid_int).update(status='activated')
+        
         if updated:
-            return json_response({'success': True, 'message': f'User {uid} activated successfully.'})
+            print(f"DEBUG: Successfully activated user ID: {uid_int}")
+            return json_response({'success': True, 'message': f'User {uid_int} activated successfully.'})
+            
+        print(f"DEBUG: User ID {uid_int} not found for activation")
         return json_response({'success': False, 'message': 'User not found.'}, 404)
     except Exception as e:
+        print(f"DEBUG: Error in api_activate_user: {str(e)}")
         return json_response({'success': False, 'message': str(e)}, 500)
