@@ -15,13 +15,22 @@ except ImportError:
 
 from PIL import Image
 
-# ─── Load TFLite model ────────────────────────────────────────────────────────
-MODEL_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'models', 'resnet34_model_quantized.tflite')
-interpreter = tflite.Interpreter(model_path=MODEL_PATH)
-interpreter.allocate_tensors()
+# ─── Lazy Load TFLite model ───────────────────────────────────────────────────
+_interpreter = None
+_input_details = None
+_output_details = None
 
-input_details = interpreter.get_input_details()
-output_details = interpreter.get_output_details()
+def get_interpreter():
+    global _interpreter, _input_details, _output_details
+    if _interpreter is None:
+        print("INFO: Loading TFLite model lazily...")
+        MODEL_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'models', 'resnet34_model_quantized.tflite')
+        _interpreter = tflite.Interpreter(model_path=MODEL_PATH)
+        _interpreter.allocate_tensors()
+        _input_details = _interpreter.get_input_details()
+        _output_details = _interpreter.get_output_details()
+    return _interpreter, _input_details, _output_details
+
 class_names = ['Damaged', 'Intact']
 
 
@@ -128,6 +137,7 @@ def api_predict(request):
 
         # TFLite Inference
         print("DEBUG: Starting TFLite inference...")
+        interpreter, input_details, output_details = get_interpreter()
         interpreter.set_tensor(input_details[0]['index'], img_array)
         interpreter.invoke()
         prediction = interpreter.get_tensor(output_details[0]['index'])[0]
