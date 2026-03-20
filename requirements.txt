@@ -6,3 +6,4 @@ numpy<2.0.0
 gunicorn==21.2.0
 pillow==10.4.0
 whitenoise==6.7.0
+fpdf2==2.8.2
