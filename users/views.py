@@ -88,13 +88,6 @@ from PIL import Image
 # Build the absolute path to the model
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODEL_PATH = os.path.join(BASE_DIR, 'models', 'resnet34_model_quantized.tflite')
-
-# Load TFLite model once
-interpreter = tflite.Interpreter(model_path=MODEL_PATH)
-interpreter.allocate_tensors()
-
-input_details = interpreter.get_input_details()
-output_details = interpreter.get_output_details()
 class_names = ['Damaged', 'Intact']
 
 # Prediction view
@@ -107,8 +100,11 @@ def predict_view(request):
         file_path = fs.save(uploaded_file.name, uploaded_file)
         full_path = fs.path(file_path)
 
-        # Preprocess image with PIL
-        img = Image.open(full_path).resize((256, 256))
+        # Preprocess image with PIL (Memory optimized)
+        img = Image.open(full_path)
+        if img.width > 512 or img.height > 512:
+            img.thumbnail((512, 512))
+        img = img.convert('RGB').resize((256, 256))
         img_array = np.array(img).astype(np.float32) / 255.0
         
         # Ensure 3 channels
@@ -117,10 +113,20 @@ def predict_view(request):
             
         img_array = np.expand_dims(img_array, axis=0)
 
-        # Predict with TFLite
+        # Predict with TFLite (Lazy Load)
+        interpreter = tflite.Interpreter(model_path=MODEL_PATH)
+        interpreter.allocate_tensors()
+        input_details = interpreter.get_input_details()
+        output_details = interpreter.get_output_details()
+        
         interpreter.set_tensor(input_details[0]['index'], img_array)
         interpreter.invoke()
         prediction = interpreter.get_tensor(output_details[0]['index'])[0]
+        
+        # Clean up
+        del interpreter
+        import gc
+        gc.collect()
 
         if len(prediction) == 1:  # sigmoid model
             prob = float(prediction[0])

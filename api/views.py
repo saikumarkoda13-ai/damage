@@ -21,17 +21,13 @@ from django.http import FileResponse
 import io
 import datetime
 
-# ─── Load TFLite model ────────────────────────────────────────────────────────
+# ─── Load TFLite model (Lazy Load to save RAM) ───────────────────────────────
 MODEL_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'models', 'resnet34_model_quantized.tflite')
-interpreter = tflite.Interpreter(model_path=MODEL_PATH)
-interpreter.allocate_tensors()
-
-input_details = interpreter.get_input_details()
-output_details = interpreter.get_output_details()
 class_names = ['Damaged', 'Intact']
 
 
 # ─── Helper ───────────────────────────────────────────────────────────────────
+
 def json_response(data, status=200):
     return JsonResponse(data, status=status, safe=isinstance(data, dict))
 
@@ -121,9 +117,13 @@ def api_predict(request):
         full_path = fs.path(file_path)
         print(f"DEBUG: File saved at: {full_path}")
 
-        # Preprocess with PIL
+        # Preprocess with PIL (Memory optimized)
         try:
-            img = Image.open(full_path).convert('RGB').resize((256, 256))
+            img = Image.open(full_path).convert('RGB')
+            # Use thumbnail to reduce memory spike before resizing exactly
+            if img.width > 512 or img.height > 512:
+                img.thumbnail((512, 512))
+            img = img.resize((256, 256))
             img_array = np.array(img).astype(np.float32) / 255.0
             print(f"DEBUG: Image shape after processing: {img_array.shape}")
         except Exception as e:
@@ -132,12 +132,22 @@ def api_predict(request):
             
         img_array = np.expand_dims(img_array, axis=0)
 
-        # TFLite Inference
+        # TFLite Inference (Lazy Load)
         print("DEBUG: Starting TFLite inference...")
+        interpreter = tflite.Interpreter(model_path=MODEL_PATH)
+        interpreter.allocate_tensors()
+        input_details = interpreter.get_input_details()
+        output_details = interpreter.get_output_details()
+        
         interpreter.set_tensor(input_details[0]['index'], img_array)
         interpreter.invoke()
         prediction = interpreter.get_tensor(output_details[0]['index'])[0]
         print(f"DEBUG: Prediction raw result: {prediction}")
+        
+        # Free memory immediately
+        del interpreter
+        import gc
+        gc.collect()
 
         # 1. First, determine predicted_class and confidence
         if len(prediction) == 1:  # sigmoid
