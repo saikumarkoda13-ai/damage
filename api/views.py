@@ -13,6 +13,7 @@ try:
 except ImportError:
     import tensorflow.lite as tflite
 
+from .models import Prediction
 from PIL import Image
 
 # ─── Load TFLite model ────────────────────────────────────────────────────────
@@ -180,6 +181,17 @@ def api_predict(request):
 
         print(f"DEBUG: Final prediction: {predicted_class} | Severity: {severity} | Decision: {decision}")
         
+        # 3. Save to History
+        try:
+            Prediction.objects.create(
+                image_name=uploaded_file.name,
+                prediction=predicted_class,
+                confidence=round(confidence * 100, 2),
+                severity=severity
+            )
+        except Exception as db_err:
+            print(f"WARNING: Could not save prediction to history: {db_err}")
+
         return json_response({
             'success': True,
             'prediction': predicted_class,
@@ -264,4 +276,29 @@ def api_activate_user(request):
         return json_response({'success': False, 'message': 'User not found.'}, 404)
     except Exception as e:
         print(f"DEBUG: Exception in api_activate_user: {str(e)}")
+        return json_response({'success': False, 'message': str(e)}, 500)
+
+
+# ─── 7. Dashboard Stats (Admin) ───────────────────────────────────────────────
+@csrf_exempt
+@require_http_methods(["GET"])
+def api_stats(request):
+    try:
+        total = Prediction.objects.count()
+        damaged = Prediction.objects.filter(prediction='Damaged').count()
+        intact = Prediction.objects.filter(prediction='Intact').count()
+        others = Prediction.objects.filter(prediction='Non-Parcel Image').count()
+
+        # Simple data for a "graph"
+        # We'll return percentages
+        stats = {
+            'total': total,
+            'damaged': damaged,
+            'intact': intact,
+            'others': others,
+            'damaged_percent': round((damaged / total * 100), 1) if total > 0 else 0,
+            'intact_percent': round((intact / total * 100), 1) if total > 0 else 0,
+        }
+        return json_response({'success': True, 'stats': stats})
+    except Exception as e:
         return json_response({'success': False, 'message': str(e)}, 500)
