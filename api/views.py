@@ -15,22 +15,13 @@ except ImportError:
 
 from PIL import Image
 
-# ─── Lazy Load TFLite model ───────────────────────────────────────────────────
-_interpreter = None
-_input_details = None
-_output_details = None
+# ─── Load TFLite model ────────────────────────────────────────────────────────
+MODEL_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'models', 'resnet34_model_quantized.tflite')
+interpreter = tflite.Interpreter(model_path=MODEL_PATH)
+interpreter.allocate_tensors()
 
-def get_interpreter():
-    global _interpreter, _input_details, _output_details
-    if _interpreter is None:
-        print("INFO: Loading TFLite model lazily...")
-        MODEL_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'models', 'resnet34_model_quantized.tflite')
-        _interpreter = tflite.Interpreter(model_path=MODEL_PATH)
-        _interpreter.allocate_tensors()
-        _input_details = _interpreter.get_input_details()
-        _output_details = _interpreter.get_output_details()
-    return _interpreter, _input_details, _output_details
-
+input_details = interpreter.get_input_details()
+output_details = interpreter.get_output_details()
 class_names = ['Damaged', 'Intact']
 
 
@@ -137,12 +128,12 @@ def api_predict(request):
 
         # TFLite Inference
         print("DEBUG: Starting TFLite inference...")
-        interpreter, input_details, output_details = get_interpreter()
         interpreter.set_tensor(input_details[0]['index'], img_array)
         interpreter.invoke()
         prediction = interpreter.get_tensor(output_details[0]['index'])[0]
         print(f"DEBUG: Prediction raw result: {prediction}")
 
+        # 1. First, determine predicted_class and confidence
         if len(prediction) == 1:  # sigmoid
             prob = float(prediction[0])
             if prob >= 0.85:
@@ -155,17 +146,47 @@ def api_predict(request):
                 predicted_class = 'Non-Parcel Image'
                 confidence = prob if prob > 0.5 else (1 - prob)
         else:  # softmax
+            prob = float(np.max(prediction)) # treat max as prob for severity calc
             confidence = float(np.max(prediction))
             predicted_class = class_names[int(np.argmax(prediction))]
             if confidence < 0.60:
                 predicted_class = 'Non-Parcel Image'
 
-        print(f"DEBUG: Final prediction: {predicted_class} with confidence {confidence * 100:.2f}%")
+        # 2. Final categorization and severity mapping
+        severity = 'N/A'
+        decision = 'N/A'
+        color = '#95a5a6'  # Default gray
+
+        if predicted_class == 'Intact':
+            severity = 'Safe'
+            decision = 'Deliver normally'
+            color = '#2ecc71'  # Green
+        elif predicted_class == 'Damaged':
+            # Calculate damage confidence (1 - prob if prob is low, or direct prob if softmax)
+            damage_conf = (1 - prob) if len(prediction) == 1 else confidence
+            
+            if damage_conf >= 0.60:
+                severity = 'Severe'
+                decision = 'Reject / Return parcel'
+                color = '#e74c3c'  # Red
+            else:
+                severity = 'Moderate'
+                decision = 'Handle carefully'
+                color = '#f1c40f'  # Yellow
+        elif predicted_class == 'Non-Parcel Image':
+            severity = 'Unknown'
+            decision = 'N/A'
+            color = '#95a5a6'
+
+        print(f"DEBUG: Final prediction: {predicted_class} | Severity: {severity} | Decision: {decision}")
         
         return json_response({
             'success': True,
             'prediction': predicted_class,
             'confidence': round(confidence * 100, 2),
+            'severity': severity,
+            'decision': decision,
+            'color': color,
             'image_url': fs.url(file_path),
         })
     except Exception as e:
