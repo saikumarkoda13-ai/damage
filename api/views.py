@@ -25,6 +25,17 @@ import datetime
 MODEL_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'models', 'resnet34_model_quantized.tflite')
 class_names = ['Damaged', 'Intact']
 
+# Cache the interpreter at module level to avoid reloading on every request
+_interpreter = None
+
+def get_interpreter():
+    global _interpreter
+    if _interpreter is None:
+        print(f"DEBUG: Initializing TFLite Interpreter from {MODEL_PATH}")
+        _interpreter = tflite.Interpreter(model_path=MODEL_PATH)
+        _interpreter.allocate_tensors()
+    return _interpreter
+
 
 # ─── Helper ───────────────────────────────────────────────────────────────────
 
@@ -132,10 +143,9 @@ def api_predict(request):
             
         img_array = np.expand_dims(img_array, axis=0)
 
-        # TFLite Inference (Lazy Load)
+        # TFLite Inference (Global Interpreter)
         print("DEBUG: Starting TFLite inference...")
-        interpreter = tflite.Interpreter(model_path=MODEL_PATH)
-        interpreter.allocate_tensors()
+        interpreter = get_interpreter()
         input_details = interpreter.get_input_details()
         output_details = interpreter.get_output_details()
         
@@ -145,7 +155,6 @@ def api_predict(request):
         print(f"DEBUG: Prediction raw result: {prediction}")
         
         # Free memory immediately
-        del interpreter
         import gc
         gc.collect()
 
